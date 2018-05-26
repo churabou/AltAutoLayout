@@ -1,6 +1,0 @@
-framework module Pods_AltAutoLayoutUITests {
-  umbrella header "Pods-AltAutoLayoutUITests-umbrella.h"
-
-  export *
-  module * { export * }
-}

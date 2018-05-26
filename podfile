@@ -8,14 +8,5 @@ target 'AltAutoLayout' do
   # Pods for AltAutoLayout
 
   pod 'Texture'
-  target 'AltAutoLayoutTests' do
-    inherit! :search_paths
-    # Pods for testing
-  end
-
-  target 'AltAutoLayoutUITests' do
-    inherit! :search_paths
-    # Pods for testing
-  end
-
+  pod 'SnapKit'
 end

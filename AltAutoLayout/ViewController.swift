@@ -6,115 +6,308 @@
 //  Copyright © 2018年 ちゅーたつ. All rights reserved.
 //
 
-import SnapKit
-//
-//extension UIView {
-//    func setAutoLayout() {
-//        translatesAutoresizingMaskIntoConstraints = false
-//    }
-//}
-//class TableViewCell: UITableViewCell {
-//
-//    private var nameLabel = UILabel()
-//    private var timeLabel = UILabel()
-//    private var iconView = UIImageView()
-//    private var thumbnailView = UIImageView()
-//    private var separatorView = UIView()
-//
-//
-//    func configure() {
-//        nameLabel.backgroundColor = .orange
-//        timeLabel.backgroundColor = .blue
-//        iconView.backgroundColor = .red
-//        separatorView.backgroundColor = .gray
-//        thumbnailView.backgroundColor = .green
-//
-//        nameLabel.setAutoLayout()
-//        contentView.addSubview(nameLabel)
-//        timeLabel.setAutoLayout()
-//        contentView.addSubview(timeLabel)
-//        iconView.setAutoLayout()
-//        contentView.addSubview(iconView)
-//        thumbnailView.setAutoLayout()
-//        contentView.addSubview(thumbnailView)
-//        separatorView.setAutoLayout()
-//        contentView.addSubview(separatorView)
-//    }
-//
-//    override func layoutSubviews() {
-//
-//        nameLabel.snp.makeConstraints { (make) in
-//            make.top.left.equalTo(15)
-//            make.right.equalTo(timeLabel.snp.left).offset(-5)
-//            make.height.equalTo(30)
-//        }
-//
-//        timeLabel.snp.makeConstraints { (make) in
-//            make.top.equalTo(15)
-//            make.right.equalTo(-10)
-//            make.width.equalTo(150)
-//            make.height.equalTo(30)
-//        }
-//
-//        iconView.snp.makeConstraints { (make) in
-//            make.top.equalTo(nameLabel.snp.bottom).offset(10)
-//            make.left.equalTo(15)
-//            make.size.equalTo(40)
-//        }
-//
-//        separatorView.snp.makeConstraints { (make) in
-//            make.height.equalTo(1)
-//            make.top.equalTo(iconView.snp.bottom).offset(10)
-//            make.right.equalTo(-5)
-//            make.left.equalTo(5)
-//        }
-//
-//        thumbnailView.snp.makeConstraints { (make) in
-//
-//            make.size.equalTo(self.snp.width).inset(15)
-//            make.centerX.equalToSuperview()
-//            make.top.equalTo(separatorView.snp.bottom).offset(5)
-//        }
-//    }
-//}
-//
-//
-//class ViewController: UIViewController {
-//
-//    fileprivate lazy var tableView: UITableView = {
-//        let t = UITableView()
-//        t.frame = view.frame
-//        t.register(TableViewCell.self, forCellReuseIdentifier: "cell")
-//        t.dataSource = self
-//        t.delegate = self
-//        return t
-//    }()
-//
-//    fileprivate var models = [0,0,0,0,0,0,0,0,0,0,0,0,0]
-//    override func viewDidLoad() {
-//        view.addSubview(tableView)
-//    }
-//}
-//
-//extension ViewController: UITableViewDataSource, UITableViewDelegate {
-//
-//    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-//        return 480
-//    }
-//
-//    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-//        return 1000
-//    }
-//
-//    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-//
-//        guard let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as? TableViewCell else {
-//            return UITableViewCell()
-//        }
-//
-//        cell.configure()
-//        return cell
-//    }
-//}
+import UIKit
 
+
+
+
+extension UIView {
+    
+    var layout: LayoutMaker {
+        return LayoutMaker(self)
+    }
+}
+
+
+// left, right, centerX
+protocol HorizontalConstraints {
+}
+
+// top, bottom, centerY
+protocol VerticalConstraints {
+}
+
+// width, height
+protocol DimensionalConstraints {
+}
+
+
+extension NSLayoutXAxisAnchor: HorizontalConstraints {
+}
+
+extension NSLayoutYAxisAnchor: VerticalConstraints {
+}
+
+
+
+extension NSLayoutXAxisAnchor {
+    static func +(lhd: NSLayoutXAxisAnchor, rhd: CGFloat) -> Wrapper<NSLayoutXAxisAnchor> {
+        return Wrapper(target: lhd, amount: rhd)
+    }
+}
+
+extension NSLayoutYAxisAnchor {
+    static func +(lhd: NSLayoutYAxisAnchor, rhd: CGFloat) -> Wrapper<NSLayoutYAxisAnchor> {
+        return Wrapper(target: lhd, amount: rhd)
+    }
+}
+
+
+
+
+extension CGFloat: HorizontalConstraints, VerticalConstraints, DimensionalConstraints {
+}
+
+extension UIView: HorizontalConstraints, VerticalConstraints {
+    
+}
+
+class Wrapper<T> {
+    
+    var target: T
+    var amount: CGFloat
+    
+    init(target: T, amount: CGFloat) {
+        self.target = target
+        self.amount = amount
+    }
+}
+
+
+extension Wrapper: HorizontalConstraints where T == NSLayoutXAxisAnchor {
+}
+
+extension Wrapper: VerticalConstraints where T == NSLayoutYAxisAnchor {
+}
+
+extension Wrapper: DimensionalConstraints where T == NSLayoutDimension {
+}
+
+
+class LayoutMaker {
+    
+    var base: UIView
+    init (_ base: UIView) {
+        self.base = base
+    }
+    
+    var right: NSLayoutXAxisAnchor {
+        return base.rightAnchor
+    }
+    
+    var left: NSLayoutXAxisAnchor {
+        return base.leftAnchor
+    }
+    
+    var top: NSLayoutYAxisAnchor {
+        return base.topAnchor
+    }
+    
+    var bottom: NSLayoutYAxisAnchor {
+        return base.bottomAnchor
+    }
+    
+    var width: NSLayoutDimension {
+        return base.widthAnchor
+    }
+    
+    var height: NSLayoutDimension {
+        return base.heightAnchor
+    }
+    
+    //right + 10 or right or Int or View
+    func constrainX(right: HorizontalConstraints) {
+        
+    }
+    
+    func setWidthConstraint(_ width: DimensionalConstraints) {
+     
+        if let width = width as? Wrapper<NSLayoutDimension> {
+            base.widthAnchor.constraint(equalTo: width.target, multiplier: 1, constant: width.amount).activate()
+        }
+        
+        if let width = width as? NSLayoutDimension {
+            base.widthAnchor.constraint(equalTo: width).activate()
+        }
+        
+        if let view = width as? UIView {
+            base.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 1).activate()
+        }
+        
+        if let width = width as? CGFloat {
+            base.widthAnchor.constraint(equalToConstant: width).activate()
+        }
+    }
+    
+    func setHeightConstraint(_ height: DimensionalConstraints) {
+        
+        if let height = height as? Wrapper<NSLayoutDimension> {
+            base.heightAnchor.constraint(equalTo: height.target, multiplier: 1, constant: height.amount).activate()
+        }
+        
+        if let height = height as? NSLayoutDimension {
+            base.heightAnchor.constraint(equalTo: height).activate()
+        }
+        
+        if let view = height as? UIView {
+            base.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 1).activate()
+        }
+        
+        if let height = height as? CGFloat {
+            base.heightAnchor.constraint(equalToConstant: height).activate()
+        }
+    }
+    
+    func setRightConstraint(_ right: HorizontalConstraints) {
+
+        if let right = right as? Wrapper<NSLayoutXAxisAnchor> {
+            base.rightAnchor.constraint(equalTo: right.target, constant: right.amount).activate()
+        }
+        
+        if let right = right as? NSLayoutXAxisAnchor {
+            base.rightAnchor.constraint(equalTo: right).activate()
+        }
+        
+        if let right = right as? UIView {
+            base.rightAnchor.constraint(equalTo: right.rightAnchor).activate()
+        }
+        
+        if let right = right as? CGFloat {
+            base.rightAnchor.constraint(equalTo: base.superview!.rightAnchor, constant: right).activate()
+        }
+    }
+    
+    func setLeftConstraint(_ left: HorizontalConstraints) {
+        
+        if let left = left as? Wrapper<NSLayoutXAxisAnchor> {
+            base.leftAnchor.constraint(equalTo: left.target, constant: left.amount).activate()
+        }
+        
+        if let left = left as? NSLayoutXAxisAnchor {
+            base.leftAnchor.constraint(equalTo: left).activate()
+        }
+        
+        if let left = left as? UIView {
+            base.leftAnchor.constraint(equalTo: left.leftAnchor).activate()
+        }
+        
+        if let left = left as? CGFloat {
+            base.leftAnchor.constraint(equalTo: base.superview!.leftAnchor, constant: left).activate()
+        }
+    }
+    
+    
+    func setTopConstraint(_ top: VerticalConstraints) {
+
+        //equalTo(view.snp.bottom).offSet(10)
+        if let top = top as? Wrapper<NSLayoutYAxisAnchor> {
+            base.topAnchor.constraint(equalTo: top.target, constant: top.amount).activate()
+        }
+        //ex, equalTo(view.snp.bottom)
+        if let top = top as? NSLayoutYAxisAnchor {
+            base.topAnchor.constraint(equalTo: top).activate()
+        }
+        
+        if let top = top as? UIView {
+            base.topAnchor.constraint(equalTo: top.topAnchor).activate()
+        }
+        
+        if let top = top as? CGFloat {
+            base.topAnchor.constraint(equalTo: base.superview!.topAnchor, constant: top).activate()
+        }
+    }
+    
+    
+    func setBottomConstraint(_ bottom: VerticalConstraints) {
+        
+        //equalTo(view.snp.bottom).offSet(10)
+        if let bottom = bottom as? Wrapper<NSLayoutYAxisAnchor> {
+            base.bottomAnchor.constraint(equalTo: bottom.target, constant: bottom.amount).activate()
+        }
+        //ex, equalTo(view.snp.bottom)
+        if let bottom = bottom as? NSLayoutYAxisAnchor {
+            base.bottomAnchor.constraint(equalTo: bottom).activate()
+        }
+        
+        if let bottom = bottom as? UIView {
+            base.bottomAnchor.constraint(equalTo: bottom.bottomAnchor).activate()
+        }
+        
+        if let bottom = bottom as? CGFloat {
+            base.bottomAnchor.constraint(equalTo: base.superview!.bottomAnchor, constant: bottom).activate()
+        }
+    }
+    
+    
+    func a() {
+        self.constrainX(right: base.layout.left)
+    }
+}
+
+extension NSLayoutConstraint {
+    
+    func activate() {
+        isActive = true
+    }
+}
+class ViewController: UIViewController {
+    
+    let red = UIView()
+    let blue = UIView()
+    let green = UIView()
+    
+    
+    override func viewDidLoad() {
+        
+        
+        view.backgroundColor = .white
+        view.addSubview(red)
+        view.addSubview(blue)
+        view.addSubview(green)
+        
+        red.backgroundColor = .red
+        blue.backgroundColor = .blue
+        green.backgroundColor = .green
+        
+        red.translatesAutoresizingMaskIntoConstraints = false
+        blue.translatesAutoresizingMaskIntoConstraints = false
+        green.translatesAutoresizingMaskIntoConstraints = false
+        
+        
+        
+        red.layout.setTopConstraint(view.layout.top + 50)
+        red.layout.setWidthConstraint(CGFloat(300))
+        red.layout.setHeightConstraint(CGFloat(300))
+        red.layout.setLeftConstraint(view)
+        
+        
+        
+        blue.layout.setTopConstraint(red.layout.bottom)
+        blue.layout.setLeftConstraint(red.layout.right)
+        blue.layout.setRightConstraint(view)
+        blue.layout.setBottomConstraint(view)
+        
+        
+        green.layout.setTopConstraint(red.layout.bottom)
+        green.layout.setLeftConstraint(CGFloat(0))
+        green.layout.setHeightConstraint(CGFloat(100))
+        green.layout.setWidthConstraint(CGFloat(50))
+        
+    }
+    
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        
+        
+        let rotateAnimation = CABasicAnimation(keyPath: "transform.rotation")
+        rotateAnimation.fromValue = 0.0
+        rotateAnimation.toValue = CGFloat(.pi * 2.0)
+        rotateAnimation.duration = 0.5
+        red.layer.add(rotateAnimation, forKey: nil)
+        
+//        UIView.animate(withDuration: 0.5) {
+//            self.red.transform = self.red.transform.rotated(by: 270 * CGFloat.pi / 180)
+//        }
+    }
+}
 
