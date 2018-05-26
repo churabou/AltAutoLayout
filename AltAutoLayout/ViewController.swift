@@ -6,14 +6,57 @@
 //  Copyright © 2018年 ちゅーたつ. All rights reserved.
 //
 
-import UIKit
+import SnapKit
 
 
 
+enum LayoutTarget {
+    
+    enum XAxis {
+        case left, right, centerX
+    }
+    
+    enum YAxis {
+        case top, bottom, centerY
+    }
+    
+    enum Dimension {
+        case width, height
+    }
+}
 
 extension UIView {
     
+    
+    func layoutAnchor(_ target: LayoutTarget.XAxis) -> NSLayoutXAxisAnchor {
+        switch target {
+        case .left: return leftAnchor
+        case .right: return rightAnchor
+        case .centerX: return centerXAnchor
+        }
+    }
+    
+    func layoutAnchor(_ target: LayoutTarget.YAxis) -> NSLayoutYAxisAnchor {
+        switch target {
+        case .top: return topAnchor
+        case .bottom: return bottomAnchor
+        case .centerY: return centerYAnchor
+        }
+    }
+    
+    func layoutAnchor(_ target: LayoutTarget.Dimension) -> NSLayoutDimension {
+        switch target {
+        case .width: return widthAnchor
+        case .height: return heightAnchor
+        }
+    }
+    
+    
     var layout: LayoutMaker {
+        
+        self.snp.makeConstraints { (make) in
+//            make.left.equalTo(<#T##other: ConstraintRelatableTarget##ConstraintRelatableTarget#>)
+        }
         return LayoutMaker(self)
     }
 }
@@ -39,8 +82,8 @@ extension NSLayoutYAxisAnchor: VerticalConstraints {
 }
 
 
-
 extension NSLayoutXAxisAnchor {
+
     static func +(lhd: NSLayoutXAxisAnchor, rhd: CGFloat) -> Wrapper<NSLayoutXAxisAnchor> {
         return Wrapper(target: lhd, amount: rhd)
     }
@@ -113,6 +156,69 @@ class LayoutMaker {
     
     var height: NSLayoutDimension {
         return base.heightAnchor
+    }
+    
+    func activateLayoutAnchorXAxis(_ constrain: HorizontalConstraints, target: LayoutTarget.XAxis) {
+        
+        let anchor = base.layoutAnchor(target)
+        
+        if let constrain = constrain as? Wrapper<NSLayoutXAxisAnchor> {
+            anchor.constraint(equalTo: constrain.target, constant: constrain.amount).activate()
+        }
+        
+        if let constrain = constrain as? NSLayoutXAxisAnchor {
+            anchor.constraint(equalTo: constrain).activate()
+        }
+        
+        if let view = constrain as? UIView {
+            anchor.constraint(equalTo: view.layoutAnchor(target)).activate()
+        }
+        
+        if let constrain = constrain as? CGFloat {
+            anchor.constraint(equalTo: base.superview!.layoutAnchor(target), constant: constrain).activate()
+        }
+    }
+    
+    func activateLayoutAnchorYAxis(_ constrain: HorizontalConstraints, target: LayoutTarget.YAxis) {
+        
+        let anchor = base.layoutAnchor(target)
+        
+        if let constrain = constrain as? Wrapper<NSLayoutYAxisAnchor> {
+            anchor.constraint(equalTo: constrain.target, constant: constrain.amount).activate()
+        }
+        
+        if let constrain = constrain as? NSLayoutYAxisAnchor {
+            anchor.constraint(equalTo: constrain).activate()
+        }
+        
+        if let view = constrain as? UIView {
+            anchor.constraint(equalTo: view.layoutAnchor(target)).activate()
+        }
+        
+        if let constrain = constrain as? CGFloat {
+            anchor.constraint(equalTo: base.superview!.layoutAnchor(target), constant: constrain).activate()
+        }
+    }
+    
+    
+    func activateLayoutAnchorDimension(_ constrain: DimensionalConstraints, target: LayoutTarget.Dimension) {
+        
+        let anchor = base.layoutAnchor(target)
+        if let constrain = constrain as? Wrapper<NSLayoutDimension> {
+            anchor.constraint(equalTo: constrain.target, multiplier: 1, constant: constrain.amount).activate()
+        }
+        
+        if let constrain = constrain as? NSLayoutDimension {
+            anchor.constraint(equalTo: constrain).activate()
+        }
+        
+        if let view = constrain as? UIView {
+            anchor.constraint(equalTo: view.layoutAnchor(target), multiplier: 1).activate()
+        }
+        
+        if let constant = constrain as? CGFloat {
+            anchor.constraint(equalToConstant: constant).activate()
+        }
     }
     
     //right + 10 or right or Int or View
@@ -236,11 +342,6 @@ class LayoutMaker {
         if let bottom = bottom as? CGFloat {
             base.bottomAnchor.constraint(equalTo: base.superview!.bottomAnchor, constant: bottom).activate()
         }
-    }
-    
-    
-    func a() {
-        self.constrainX(right: base.layout.left)
     }
 }
 
