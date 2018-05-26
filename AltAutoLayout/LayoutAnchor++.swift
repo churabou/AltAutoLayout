@@ -24,8 +24,7 @@ enum LayoutTarget {
 }
 
 extension UIView {
-    
-    
+
     func layoutAnchor(_ target: LayoutTarget.XAxis) -> NSLayoutXAxisAnchor {
         switch target {
         case .left: return leftAnchor
@@ -47,15 +46,6 @@ extension UIView {
         case .width: return widthAnchor
         case .height: return heightAnchor
         }
-    }
-    
-    
-    var layout: LayoutMaker {
-        
-        self.snp.makeConstraints { (make) in
-            //            make.left.equalTo(<#T##other: ConstraintRelatableTarget##ConstraintRelatableTarget#>)
-        }
-        return LayoutMaker(self)
     }
 }
 
@@ -81,9 +71,6 @@ extension NSLayoutYAxisAnchor: VerticalConstraints {
 
 extension NSLayoutDimension: DimensionalConstraints {
 }
-
-
-
 
 
 typealias ConstraintsTarget = HorizontalConstraints & VerticalConstraints & DimensionalConstraints
