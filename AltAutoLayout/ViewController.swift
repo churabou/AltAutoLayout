@@ -10,122 +10,6 @@ import SnapKit
 
 
 
-enum LayoutTarget {
-    
-    enum XAxis {
-        case left, right, centerX
-    }
-    
-    enum YAxis {
-        case top, bottom, centerY
-    }
-    
-    enum Dimension {
-        case width, height
-    }
-}
-
-extension UIView {
-    
-    
-    func layoutAnchor(_ target: LayoutTarget.XAxis) -> NSLayoutXAxisAnchor {
-        switch target {
-        case .left: return leftAnchor
-        case .right: return rightAnchor
-        case .centerX: return centerXAnchor
-        }
-    }
-    
-    func layoutAnchor(_ target: LayoutTarget.YAxis) -> NSLayoutYAxisAnchor {
-        switch target {
-        case .top: return topAnchor
-        case .bottom: return bottomAnchor
-        case .centerY: return centerYAnchor
-        }
-    }
-    
-    func layoutAnchor(_ target: LayoutTarget.Dimension) -> NSLayoutDimension {
-        switch target {
-        case .width: return widthAnchor
-        case .height: return heightAnchor
-        }
-    }
-    
-    
-    var layout: LayoutMaker {
-        
-        self.snp.makeConstraints { (make) in
-//            make.left.equalTo(<#T##other: ConstraintRelatableTarget##ConstraintRelatableTarget#>)
-        }
-        return LayoutMaker(self)
-    }
-}
-
-
-// left, right, centerX
-protocol HorizontalConstraints {
-}
-
-// top, bottom, centerY
-protocol VerticalConstraints {
-}
-
-// width, height
-protocol DimensionalConstraints {
-}
-
-
-extension NSLayoutXAxisAnchor: HorizontalConstraints {
-}
-
-extension NSLayoutYAxisAnchor: VerticalConstraints {
-}
-
-
-extension NSLayoutXAxisAnchor {
-
-    static func +(lhd: NSLayoutXAxisAnchor, rhd: CGFloat) -> Wrapper<NSLayoutXAxisAnchor> {
-        return Wrapper(target: lhd, amount: rhd)
-    }
-}
-
-extension NSLayoutYAxisAnchor {
-    static func +(lhd: NSLayoutYAxisAnchor, rhd: CGFloat) -> Wrapper<NSLayoutYAxisAnchor> {
-        return Wrapper(target: lhd, amount: rhd)
-    }
-}
-
-
-
-
-extension CGFloat: HorizontalConstraints, VerticalConstraints, DimensionalConstraints {
-}
-
-extension UIView: HorizontalConstraints, VerticalConstraints {
-    
-}
-
-class Wrapper<T> {
-    
-    var target: T
-    var amount: CGFloat
-    
-    init(target: T, amount: CGFloat) {
-        self.target = target
-        self.amount = amount
-    }
-}
-
-
-extension Wrapper: HorizontalConstraints where T == NSLayoutXAxisAnchor {
-}
-
-extension Wrapper: VerticalConstraints where T == NSLayoutYAxisAnchor {
-}
-
-extension Wrapper: DimensionalConstraints where T == NSLayoutDimension {
-}
-
 
 class LayoutMaker {
     
@@ -179,7 +63,7 @@ class LayoutMaker {
         }
     }
     
-    func activateLayoutAnchorYAxis(_ constrain: HorizontalConstraints, target: LayoutTarget.YAxis) {
+    func activateLayoutAnchorYAxis(_ constrain: VerticalConstraints, target: LayoutTarget.YAxis) {
         
         let anchor = base.layoutAnchor(target)
         
@@ -221,127 +105,37 @@ class LayoutMaker {
         }
     }
     
-    //right + 10 or right or Int or View
-    func constrainX(right: HorizontalConstraints) {
-        
-    }
-    
+
     func setWidthConstraint(_ width: DimensionalConstraints) {
-     
-        if let width = width as? Wrapper<NSLayoutDimension> {
-            base.widthAnchor.constraint(equalTo: width.target, multiplier: 1, constant: width.amount).activate()
-        }
-        
-        if let width = width as? NSLayoutDimension {
-            base.widthAnchor.constraint(equalTo: width).activate()
-        }
-        
-        if let view = width as? UIView {
-            base.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 1).activate()
-        }
-        
-        if let width = width as? CGFloat {
-            base.widthAnchor.constraint(equalToConstant: width).activate()
-        }
+        activateLayoutAnchorDimension(width, target: .width)
     }
     
     func setHeightConstraint(_ height: DimensionalConstraints) {
-        
-        if let height = height as? Wrapper<NSLayoutDimension> {
-            base.heightAnchor.constraint(equalTo: height.target, multiplier: 1, constant: height.amount).activate()
-        }
-        
-        if let height = height as? NSLayoutDimension {
-            base.heightAnchor.constraint(equalTo: height).activate()
-        }
-        
-        if let view = height as? UIView {
-            base.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 1).activate()
-        }
-        
-        if let height = height as? CGFloat {
-            base.heightAnchor.constraint(equalToConstant: height).activate()
-        }
+         activateLayoutAnchorDimension(height, target: .height)
     }
     
     func setRightConstraint(_ right: HorizontalConstraints) {
-
-        if let right = right as? Wrapper<NSLayoutXAxisAnchor> {
-            base.rightAnchor.constraint(equalTo: right.target, constant: right.amount).activate()
-        }
-        
-        if let right = right as? NSLayoutXAxisAnchor {
-            base.rightAnchor.constraint(equalTo: right).activate()
-        }
-        
-        if let right = right as? UIView {
-            base.rightAnchor.constraint(equalTo: right.rightAnchor).activate()
-        }
-        
-        if let right = right as? CGFloat {
-            base.rightAnchor.constraint(equalTo: base.superview!.rightAnchor, constant: right).activate()
-        }
+        activateLayoutAnchorXAxis(right, target: .right)
     }
     
     func setLeftConstraint(_ left: HorizontalConstraints) {
-        
-        if let left = left as? Wrapper<NSLayoutXAxisAnchor> {
-            base.leftAnchor.constraint(equalTo: left.target, constant: left.amount).activate()
-        }
-        
-        if let left = left as? NSLayoutXAxisAnchor {
-            base.leftAnchor.constraint(equalTo: left).activate()
-        }
-        
-        if let left = left as? UIView {
-            base.leftAnchor.constraint(equalTo: left.leftAnchor).activate()
-        }
-        
-        if let left = left as? CGFloat {
-            base.leftAnchor.constraint(equalTo: base.superview!.leftAnchor, constant: left).activate()
-        }
+        activateLayoutAnchorXAxis(left, target: .left)
     }
     
+    func setCenterXConstraint(_ centerX: HorizontalConstraints) {
+        activateLayoutAnchorXAxis(centerX, target: .centerX)
+    }
     
     func setTopConstraint(_ top: VerticalConstraints) {
+        activateLayoutAnchorYAxis(top, target: .top)
+    }
 
-        //equalTo(view.snp.bottom).offSet(10)
-        if let top = top as? Wrapper<NSLayoutYAxisAnchor> {
-            base.topAnchor.constraint(equalTo: top.target, constant: top.amount).activate()
-        }
-        //ex, equalTo(view.snp.bottom)
-        if let top = top as? NSLayoutYAxisAnchor {
-            base.topAnchor.constraint(equalTo: top).activate()
-        }
-        
-        if let top = top as? UIView {
-            base.topAnchor.constraint(equalTo: top.topAnchor).activate()
-        }
-        
-        if let top = top as? CGFloat {
-            base.topAnchor.constraint(equalTo: base.superview!.topAnchor, constant: top).activate()
-        }
+    func setBottomConstraint(_ bottom: VerticalConstraints) {
+         activateLayoutAnchorYAxis(bottom, target: .bottom)
     }
     
-    
-    func setBottomConstraint(_ bottom: VerticalConstraints) {
-        
-        //equalTo(view.snp.bottom).offSet(10)
-        if let bottom = bottom as? Wrapper<NSLayoutYAxisAnchor> {
-            base.bottomAnchor.constraint(equalTo: bottom.target, constant: bottom.amount).activate()
-        }
-        //ex, equalTo(view.snp.bottom)
-        if let bottom = bottom as? NSLayoutYAxisAnchor {
-            base.bottomAnchor.constraint(equalTo: bottom).activate()
-        }
-        
-        if let bottom = bottom as? UIView {
-            base.bottomAnchor.constraint(equalTo: bottom.bottomAnchor).activate()
-        }
-        
-        if let bottom = bottom as? CGFloat {
-            base.bottomAnchor.constraint(equalTo: base.superview!.bottomAnchor, constant: bottom).activate()
-        }
+    func setCenterYConstraint(_ centerY: VerticalConstraints) {
+        activateLayoutAnchorYAxis(centerY, target: .centerY)
     }
 }
 
@@ -351,6 +145,35 @@ extension NSLayoutConstraint {
         isActive = true
     }
 }
+
+
+extension LayoutMaker {
+    static func constraint(_ target: UIView, _ view1: UIView, _ view2: UIView , closure: ((LayoutMaker, AnchorShortcut, AnchorShortcut)->Swift.Void)) {
+        closure(LayoutMaker(target), AnchorShortcut(view1), AnchorShortcut(view2))
+    }
+}
+
+class ChuraLayout {
+    
+    var target: UIView
+    
+    init (_ target: UIView) {
+        self.target = target
+    }
+    
+    func constrainWith(_ view1: UIView, _ view2: UIView, closure: ((LayoutMaker, AnchorShortcut, AnchorShortcut)->Swift.Void)) {
+        closure(LayoutMaker(target), AnchorShortcut(view1), AnchorShortcut(view2))
+    }
+}
+
+extension UIView {
+    
+    var chura: ChuraLayout {
+        return ChuraLayout(self)
+    }
+}
+
+
 class ViewController: UIViewController {
     
     let red = UIView()
@@ -373,27 +196,33 @@ class ViewController: UIViewController {
         red.translatesAutoresizingMaskIntoConstraints = false
         blue.translatesAutoresizingMaskIntoConstraints = false
         green.translatesAutoresizingMaskIntoConstraints = false
+//
+//
+//        red.layout.constraintsWith(view, view) { superView, imageView in
+//
+//        }
         
         
+        red.chura.constrainWith(view, view) { red, superView, _ in
+            red.setTopConstraint(superView.top + 50)
+            red.setWidthConstraint(CGFloat(300))
+            red.setHeightConstraint(CGFloat(300))
+            red.setLeftConstraint(superView.left)
+        }
+   
+        blue.chura.constrainWith(red, view) { blue, red, superView in
+            blue.setTopConstraint(red.bottom)
+            blue.setLeftConstraint(red.right)
+            blue.setRightConstraint(superView.right)
+            blue.setBottomConstraint(superView.bottom)
+        }
         
-        red.layout.setTopConstraint(view.layout.top + 50)
-        red.layout.setWidthConstraint(CGFloat(300))
-        red.layout.setHeightConstraint(CGFloat(300))
-        red.layout.setLeftConstraint(view)
-        
-        
-        
-        blue.layout.setTopConstraint(red.layout.bottom)
-        blue.layout.setLeftConstraint(red.layout.right)
-        blue.layout.setRightConstraint(view)
-        blue.layout.setBottomConstraint(view)
-        
-        
-        green.layout.setTopConstraint(red.layout.bottom)
-        green.layout.setLeftConstraint(CGFloat(0))
-        green.layout.setHeightConstraint(CGFloat(100))
-        green.layout.setWidthConstraint(CGFloat(50))
-        
+        green.chura.constrainWith(view, view) { green, superView, _ in
+            green.setCenterXConstraint(superView.centerX)
+            green.setCenterYConstraint(superView.centerY)
+            green.setHeightConstraint(CGFloat(100))
+            green.setWidthConstraint(superView.width + (-30))
+        }
     }
     
     
